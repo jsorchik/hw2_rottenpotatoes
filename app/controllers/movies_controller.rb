@@ -10,24 +10,37 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.ratings
 
     if params[:ratings]
-      @rating_selection = params[:ratings]
+      session[:ratings] = params[:ratings]
+    elsif session[:ratings] != params[:ratings]
+      params[:ratings] = session[:ratings]
+      redirect = true
     end
     
     @movies = Movie
 
     if params[:order]
-      @order = params[:order]
-      @movies = @movies.order(@order)
+      session[:order] = params[:order]
+    elsif session[:order] != params[:order]
+      params[:order] = session[:order]
+      redirect = true
     end
 
-    if @rating_selection.nil?
-      @movies = @movies.all
-      @rating_selection = {}
-      @all_ratings.each do |rating|
-        @rating_selection[rating] = 1
-      end
+    @rating_selection = session[:ratings]
+    @order = session[:order]
+
+    if redirect
+      redirect_to movies_path(:order => @order, :ratings => @rating_selection)
     else
-      @movies = @movies.where("rating in (?)", @rating_selection.keys)
+      @movies = @movies.order(@order)
+      if @rating_selection.nil?
+        @movies = @movies.all
+        @rating_selection = {}
+        @all_ratings.each do |rating|
+          @rating_selection[rating] = 1
+        end
+      else
+        @movies = @movies.where("rating in (?)", @rating_selection.keys)
+      end
     end
   end
 
