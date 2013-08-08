@@ -6,11 +6,26 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  def index #do stuff here!
-    #params[:order]
-    #debugger
-    @order = params[:order]
-    @movies = Movie.order(params[:order])
+  def index
+    @all_ratings = Movie.ratings
+
+    
+    if params[:ratings]
+      @rating_selection = params[:ratings]
+    end
+    
+    if params[:order]
+      @order = params[:order]
+      @movies = Movie.order(@order)
+    else
+      @movies = Movie
+    end
+
+    if @rating_selection.nil?
+      @movies = @movies.all 
+    else
+      @movies = @movies.where("rating in (?)", @rating_selection.keys)
+    end   
   end
 
   def new
