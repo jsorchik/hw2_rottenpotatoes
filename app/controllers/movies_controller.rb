@@ -9,23 +9,26 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.ratings
 
-    
     if params[:ratings]
       @rating_selection = params[:ratings]
     end
     
+    @movies = Movie
+
     if params[:order]
       @order = params[:order]
-      @movies = Movie.order(@order)
-    else
-      @movies = Movie
+      @movies = @movies.order(@order)
     end
 
     if @rating_selection.nil?
-      @movies = @movies.all 
+      @movies = @movies.all
+      @rating_selection = {}
+      @all_ratings.each do |rating|
+        @rating_selection[rating] = 1
+      end
     else
       @movies = @movies.where("rating in (?)", @rating_selection.keys)
-    end   
+    end
   end
 
   def new
